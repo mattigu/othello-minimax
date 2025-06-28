@@ -1,4 +1,36 @@
 use std::fmt;
+
+const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
+const NOT_FILE_H: u64 = 0x7F7F_7F7F_7F7F_7F7F;
+const NOT_RANK_1: u64 = 0xFFFF_FFFF_FFFF_FF00;
+const NOT_RANK_8: u64 = 0x00FF_FFFF_FFFF_FFFF;
+
+// Functions to move in a direction
+fn e(x: u64) -> u64 {
+    (x << 1) & NOT_FILE_H
+}
+fn w(x: u64) -> u64 {
+    (x >> 1) & NOT_FILE_A
+}
+fn s(x: u64) -> u64 {
+    (x << 1) & NOT_RANK_1
+}
+fn n(x: u64) -> u64 {
+    (x >> 1) & NOT_RANK_8
+}
+fn ne(x: u64) -> u64 {
+    (x >> 7) & NOT_RANK_8 & NOT_FILE_H
+}
+fn se(x: u64) -> u64 {
+    (x << 9) & NOT_RANK_1 & NOT_FILE_H
+}
+fn nw(x: u64) -> u64 {
+    (x >> 9) & NOT_RANK_8 & NOT_FILE_A
+}
+fn sw(x: u64) -> u64 {
+    (x << 7) & NOT_RANK_1 & NOT_FILE_A
+}
+
 pub struct Board {
     x: u64,
     o: u64,
@@ -29,71 +61,44 @@ impl Board {
         }
     }
 
-    const fn trail_ones(n: u32) -> u64 {
-        (1 << n) - 1
-    }
-
-    fn apply_horizontal(xo: u64, tiles: u64, bit_idx: u32) -> u64 {
-        let t = tiles >> bit_idx;
-        let t2 = xo >> bit_idx;
-        let mut mask = 0;
-        if t.trailing_zeros() < t2.trailing_ones() && t2.trailing_ones() < 8 - (bit_idx % 8) {
-            mask |= Board::trail_ones(t.trailing_zeros()) << bit_idx;
-        };
-        mask
-    }
-
-    pub fn apply_move(&mut self, row: u8, col: u8, x: bool) {
+    pub fn apply_move(&mut self, row: u8, col: u8, x_turn: bool) {
         let mut mask = 0u64;
-        let bit_idx = Board::get_idx(row, col) as u32;
-        let tiles = if x { self.x } else { self.o };
-        let xo = self.x | self.o | (1u64 << bit_idx);
+        let mv = 1u64 << Board::get_idx(row, col);
+        let (me, opp) = if x_turn {
+            (self.x, self.o)
+        } else {
+            (self.o, self.x)
+        };
 
-        // Horizontal right
-        mask |= Board::apply_horizontal(xo, tiles, bit_idx);
+        mask |= Board::calc_flips(mv, e, me, opp)
+            | Board::calc_flips(mv, w, me, opp)
+            | Board::calc_flips(mv, n, me, opp)
+            | Board::calc_flips(mv, s, me, opp)
+            | Board::calc_flips(mv, se, me, opp)
+            | Board::calc_flips(mv, sw, me, opp)
+            | Board::calc_flips(mv, nw, me, opp)
+            | Board::calc_flips(mv, ne, me, opp)
+            | mv;
 
-        // Horizontal left
-        let rev_tiles = tiles.reverse_bits();
-        let rev_xo = xo.reverse_bits();
-
-        mask |= Board::apply_horizontal(rev_xo, rev_tiles, 63 - bit_idx).reverse_bits();
-
-        // Vertical down
-        mask |= Board::transpose8x8(Board::apply_horizontal(
-            Board::transpose8x8(xo),
-            Board::transpose8x8(tiles),
-            Board::get_idx(col, row) as u32,
-        ));
-
-        // Vertical up
-        mask |= Board::transpose8x8(Board::apply_horizontal(
-            Board::transpose8x8(rev_xo),
-            Board::transpose8x8(rev_tiles),
-            Board::get_idx(7 - col, 7 - row) as u32,
-        ))
-        .reverse_bits();
-
-        self.flip_tiles(mask, x);
+        self.flip_tiles(mask, x_turn);
     }
 
-    fn flip_tiles(&mut self, mask: u64, x: bool) {
-        if x {
+    fn calc_flips(mv: u64, ray: fn(u64) -> u64, me: u64, opp: u64) -> u64 {
+        let mut run = ray(mv) & opp;
+        for _ in 0..5 {
+            run |= ray(run) & opp
+        }
+        if (ray(run) & me) != 0 { run } else { 0 }
+    }
+
+    fn flip_tiles(&mut self, mask: u64, x_turn: bool) {
+        if x_turn {
             self.x |= mask;
             self.o &= !mask;
         } else {
             self.x &= !mask;
             self.o |= mask;
         }
-    }
-
-    fn transpose8x8(mut x: u64) -> u64 {
-        let t = (x ^ (x >> 7)) & 0x00AA_00AA_00AA_00AA;
-        x ^= t ^ (t << 7);
-        let t = (x ^ (x >> 14)) & 0x0000_CCCC_0000_CCCC;
-        x ^= t ^ (t << 14);
-        let t = (x ^ (x >> 28)) & 0x0000_0000_F0F0_F0F0;
-        x ^= t ^ (t << 28);
-        x
     }
 }
 
@@ -106,13 +111,13 @@ impl Default for Board {
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..8 {
+            write!(f, "{}", 7 - row)?;
             for col in 0..8 {
                 write!(f, " {} ", self.at(row, col))?;
             }
             writeln!(f)?;
         }
+        writeln!(f, "  a  b  c  d  e  f  g  h  ")?;
         Ok(())
     }
 }
-
-// Bit magic
