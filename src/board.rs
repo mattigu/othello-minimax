@@ -1,3 +1,5 @@
+use crate::utils::ansi_for;
+use crate::utils::color;
 use std::fmt;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
@@ -35,6 +37,7 @@ pub struct Board {
     x: u64,
     o: u64,
 }
+// a8 is the LSB in the bitboards.
 
 impl Board {
     pub fn new() -> Self {
@@ -126,6 +129,32 @@ impl Board {
             | Board::moves_dir(nw, me, opp, empty)
             | Board::moves_dir(ne, me, opp, empty)
     }
+
+    pub fn is_legal(&self, mv: u64, x_turn: bool) -> bool {
+        self.legal_moves(x_turn) & mv != 0
+    }
+
+    // Separate print to color move suggestions dependent on turn.
+    pub fn print(&self, x_turn: bool) {
+        let side = if x_turn { 'x' } else { 'o' };
+        println!("{side} to move:");
+        for row in 0..8 {
+            print!("{}", 8 - row);
+            for col in 0..8 {
+                let idx = Board::get_idx(row, col);
+                let mask = 1u64 << idx;
+                let symbol = self.at(row, col);
+
+                if symbol == '·' && self.is_legal(mask, x_turn) {
+                    print!(" {} ", color(&symbol.to_string(), ansi_for(side)))
+                } else {
+                    print!(" {} ", color(&symbol.to_string(), ansi_for(symbol)));
+                }
+            }
+            println!();
+        }
+        println!("  a  b  c  d  e  f  g  h  ");
+    }
 }
 
 impl Default for Board {
@@ -137,7 +166,7 @@ impl Default for Board {
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for row in 0..8 {
-            write!(f, "{}", 7 - row)?;
+            write!(f, "{}", 8 - row)?;
             for col in 0..8 {
                 write!(f, " {} ", self.at(row, col))?;
             }

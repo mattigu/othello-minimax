@@ -4,5 +4,5 @@ fn main() {
     let mut board = Board::default();
     board.apply_move(3, 5, true);
     board.apply_move(2, 5, false);
-    println!("{board}");
+    board.print(true);
 }
