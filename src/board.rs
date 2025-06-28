@@ -13,10 +13,10 @@ fn w(x: u64) -> u64 {
     (x >> 1) & NOT_FILE_A
 }
 fn s(x: u64) -> u64 {
-    (x << 1) & NOT_RANK_1
+    (x << 8) & NOT_RANK_1
 }
 fn n(x: u64) -> u64 {
-    (x >> 1) & NOT_RANK_8
+    (x >> 8) & NOT_RANK_8
 }
 fn ne(x: u64) -> u64 {
     (x >> 7) & NOT_RANK_8 & NOT_FILE_H
@@ -99,6 +99,32 @@ impl Board {
             self.x &= !mask;
             self.o |= mask;
         }
+    }
+
+    fn moves_dir(ray: fn(u64) -> u64, me: u64, opp: u64, empty: u64) -> u64 {
+        let mut t = ray(me) & opp;
+        for _ in 0..5 {
+            t |= ray(t) & opp;
+        }
+        ray(t) & empty
+    }
+
+    pub fn legal_moves(&self, x_turn: bool) -> u64 {
+        let (me, opp) = if x_turn {
+            (self.x, self.o)
+        } else {
+            (self.o, self.x)
+        };
+        let empty = !(me | opp);
+
+        Board::moves_dir(e, me, opp, empty)
+            | Board::moves_dir(w, me, opp, empty)
+            | Board::moves_dir(n, me, opp, empty)
+            | Board::moves_dir(s, me, opp, empty)
+            | Board::moves_dir(se, me, opp, empty)
+            | Board::moves_dir(sw, me, opp, empty)
+            | Board::moves_dir(nw, me, opp, empty)
+            | Board::moves_dir(ne, me, opp, empty)
     }
 }
 
