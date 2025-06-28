@@ -48,6 +48,14 @@ impl Board {
         row * 8 + col
     }
 
+    const fn get_me_opp(&self, x_turn: bool) -> (u64, u64) {
+        if x_turn {
+            (self.x, self.o)
+        } else {
+            (self.o, self.x)
+        }
+    }
+
     const fn at(&self, row: u8, col: u8) -> char {
         let idx = 1u64 << Board::get_idx(row, col);
         let x_val = self.x & idx;
@@ -64,11 +72,7 @@ impl Board {
     pub fn apply_move(&mut self, row: u8, col: u8, x_turn: bool) {
         let mut mask = 0u64;
         let mv = 1u64 << Board::get_idx(row, col);
-        let (me, opp) = if x_turn {
-            (self.x, self.o)
-        } else {
-            (self.o, self.x)
-        };
+        let (me, opp) = self.get_me_opp(x_turn);
 
         mask |= Board::calc_flips(mv, e, me, opp)
             | Board::calc_flips(mv, w, me, opp)
@@ -110,11 +114,7 @@ impl Board {
     }
 
     pub fn legal_moves(&self, x_turn: bool) -> u64 {
-        let (me, opp) = if x_turn {
-            (self.x, self.o)
-        } else {
-            (self.o, self.x)
-        };
+        let (me, opp) = self.get_me_opp(x_turn);
         let empty = !(me | opp);
 
         Board::moves_dir(e, me, opp, empty)
