@@ -1,7 +1,6 @@
 use crate::utils::ansi_for;
 use crate::utils::color;
 use std::fmt;
-use std::u64;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
 const NOT_FILE_H: u64 = 0x7F7F_7F7F_7F7F_7F7F;
@@ -50,6 +49,10 @@ impl Board {
 
     const fn get_idx(row: u8, col: u8) -> u8 {
         row * 8 + col
+    }
+
+    pub const fn get_move(row: u8, col: u8) -> u64 {
+        1 << Board::get_idx(row, col)
     }
 
     const fn get_me_opp(&self, x_turn: bool) -> (u64, u64) {
