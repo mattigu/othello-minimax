@@ -1,6 +1,7 @@
 use crate::utils::ansi_for;
 use crate::utils::color;
 use std::fmt;
+use std::u64;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
 const NOT_FILE_H: u64 = 0x7F7F_7F7F_7F7F_7F7F;
@@ -72,9 +73,8 @@ impl Board {
         }
     }
 
-    pub fn apply_move(&mut self, row: u8, col: u8, x_turn: bool) {
+    pub fn apply_move(&mut self, mv: u64, x_turn: bool) {
         let mut mask = 0u64;
-        let mv = 1u64 << Board::get_idx(row, col);
         let (me, opp) = self.get_me_opp(x_turn);
 
         mask |= Board::calc_flips(mv, e, me, opp)
@@ -137,7 +137,6 @@ impl Board {
     // Separate print to color move suggestions dependent on turn.
     pub fn print(&self, x_turn: bool) {
         let side = if x_turn { 'x' } else { 'o' };
-        println!("{side} to move:");
         for row in 0..8 {
             print!("{}", 8 - row);
             for col in 0..8 {
