@@ -57,7 +57,7 @@ pub struct Score {
 }
 
 impl Score {
-    pub fn new(x: u32, o: u32) -> Self {
+    pub const fn new(x: u32, o: u32) -> Self {
         Self { x, o }
     }
 

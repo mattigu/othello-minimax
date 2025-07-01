@@ -40,7 +40,7 @@ pub struct Board {
 // a8 is the LSB in the bitboards.
 
 impl Board {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             x: (1 << 27) + (1 << 36),
             o: (1 << 28) + (1 << 35),
@@ -108,7 +108,7 @@ impl Board {
         if (ray(run) & me) != 0 { run } else { 0 }
     }
 
-    fn flip_tiles(&mut self, mask: u64, x_turn: bool) {
+    const fn flip_tiles(&mut self, mask: u64, x_turn: bool) {
         if x_turn {
             self.x |= mask;
             self.o &= !mask;
