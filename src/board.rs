@@ -1,5 +1,6 @@
 use crate::utils::ansi_for;
 use crate::utils::color;
+use std::cmp::min;
 use std::fmt;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
@@ -148,6 +149,12 @@ impl Board {
         self.legal_moves(x_turn).count_ones()
     }
 
+    pub fn moves_iter(&self, x_turn: bool) -> MovesIter {
+        MovesIter {
+            moves: self.legal_moves(x_turn),
+        }
+    }
+
     // Separate print to color move suggestions dependent on turn.
     pub fn print(&self, x_turn: bool) {
         let side = if x_turn { 'x' } else { 'o' };
@@ -189,3 +196,29 @@ impl fmt::Display for Board {
         Ok(())
     }
 }
+
+pub struct MovesIter {
+    moves: u64,
+}
+
+impl MovesIter {
+    pub const fn new(moves: u64) -> Self {
+        Self { moves }
+    }
+}
+
+impl Iterator for MovesIter {
+    type Item = u64;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.moves == 0 {
+            return None;
+        }
+        let zeros = self.moves.trailing_zeros();
+        let mv = 1u64 << zeros;
+        self.moves ^= mv;
+        Some(mv)
+    }
+}
+
+//// 00111
