@@ -6,3 +6,4 @@ edition = "2024"
 default-run = "othello"
 
 [dependencies]
+rand = "0.9.1"
