@@ -4,35 +4,35 @@ use std::fmt;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
 const NOT_FILE_H: u64 = 0x7F7F_7F7F_7F7F_7F7F;
-const NOT_RANK_1: u64 = 0xFFFF_FFFF_FFFF_FF00;
-const NOT_RANK_8: u64 = 0x00FF_FFFF_FFFF_FFFF;
+const NOT_RANK_1: u64 = 0x00FF_FFFF_FFFF_FFFF;
+const NOT_RANK_8: u64 = 0xFFFF_FFFF_FFFF_FF00;
 
 // Functions to move in a direction
 fn e(x: u64) -> u64 {
-    (x << 1) & NOT_FILE_H
+    (x << 1) & NOT_FILE_A
 }
 fn w(x: u64) -> u64 {
-    (x >> 1) & NOT_FILE_A
+    (x >> 1) & NOT_FILE_H
 }
 fn s(x: u64) -> u64 {
-    (x << 8) & NOT_RANK_1
+    (x << 8) & NOT_RANK_8
 }
 fn n(x: u64) -> u64 {
-    (x >> 8) & NOT_RANK_8
+    (x >> 8) & NOT_RANK_1
 }
 fn ne(x: u64) -> u64 {
-    (x >> 7) & NOT_RANK_8 & NOT_FILE_H
+    (x >> 7) & NOT_RANK_1 & NOT_FILE_A
 }
 fn se(x: u64) -> u64 {
-    (x << 9) & NOT_RANK_1 & NOT_FILE_H
+    (x << 9) & NOT_RANK_8 & NOT_FILE_A
 }
 fn nw(x: u64) -> u64 {
-    (x >> 9) & NOT_RANK_8 & NOT_FILE_A
+    (x >> 9) & NOT_RANK_1 & NOT_FILE_H
 }
 fn sw(x: u64) -> u64 {
-    (x << 7) & NOT_RANK_1 & NOT_FILE_A
+    (x << 7) & NOT_RANK_8 & NOT_FILE_H
 }
-
+#[derive(Clone)]
 pub struct Board {
     x: u64,
     o: u64,
@@ -45,6 +45,13 @@ impl Board {
             x: (1 << 27) + (1 << 36),
             o: (1 << 28) + (1 << 35),
         }
+    }
+    pub const fn get_x(&self) -> u64 {
+        self.x
+    }
+
+    pub const fn get_o(&self) -> u64 {
+        self.o
     }
 
     const fn get_idx(row: u8, col: u8) -> u8 {
@@ -135,6 +142,10 @@ impl Board {
 
     pub fn is_legal(&self, mv: u64, x_turn: bool) -> bool {
         self.legal_moves(x_turn) & mv != 0
+    }
+
+    pub fn num_moves(&self, x_turn: bool) -> u32 {
+        self.legal_moves(x_turn).count_ones()
     }
 
     // Separate print to color move suggestions dependent on turn.
