@@ -37,6 +37,7 @@ impl Game {
             self.x_turn = !self.x_turn;
 
             if self.is_over() {
+                self.board.print(self.x_turn);
                 return Score::new(
                     self.board.get_x().count_ones(),
                     self.board.get_o().count_ones(),
@@ -58,6 +59,14 @@ pub struct Score {
 impl Score {
     pub fn new(x: u32, o: u32) -> Self {
         Self { x, o }
+    }
+
+    pub const fn x(&self) -> u32 {
+        self.x
+    }
+
+    pub const fn o(&self) -> u32 {
+        self.o
     }
 
     pub const fn outcome(&self) -> Outcome {

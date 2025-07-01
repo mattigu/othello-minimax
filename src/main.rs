@@ -1,6 +1,6 @@
 use core::panic;
 use othello::{
-    game::Game,
+    game::{Game, Outcome},
     player::{Human, PlayerKind, RandomAI},
 };
 use std::io;
@@ -32,5 +32,11 @@ fn main() {
 
     let mut game = Game::new(p1, p2);
 
-    game.run();
+    let score = game.run();
+    match score.outcome() {
+        Outcome::Xwin => println!("X won"),
+        Outcome::Draw => println!("Draw"),
+        Outcome::OWin => println!("O won"),
+    }
+    println!("x - {} to o - {} tiles", score.x(), score.o())
 }
