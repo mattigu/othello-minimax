@@ -1,6 +1,5 @@
 use crate::utils::ansi_for;
 use crate::utils::color;
-use std::cmp::min;
 use std::fmt;
 
 const NOT_FILE_A: u64 = 0xFEFE_FEFE_FEFE_FEFE;
