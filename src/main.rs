@@ -1,7 +1,28 @@
-use othello::board::Board;
+use core::panic;
+use othello::{
+    game::Game,
+    player::{Human, PlayerKind},
+};
+use std::io;
 fn main() {
-    let mut board = Board::default();
-    board.apply_move(1 << 29, true);
-    board.apply_move(1 << 21, false);
-    board.print(true);
+    println!("Choose mode:");
+    println!("1 - player vs player");
+    println!("2 - player vs algorithm");
+    println!("3 - algorithm vs algorithm");
+
+    let mut input = String::new();
+    let _ = io::stdin().read_line(&mut input);
+
+    let (p1, p2): (PlayerKind, PlayerKind) = match input.trim() {
+        "1" => (
+            PlayerKind::Human(Human::new('x')),
+            PlayerKind::Human(Human::new('o')),
+        ),
+        _ => panic!("Invalid option"),
+    };
+    print!("{}[2J", 27 as char); // clear terminal
+
+    let mut game = Game::new(p1, p2);
+
+    game.run();
 }
