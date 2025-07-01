@@ -1,7 +1,6 @@
-use std::io;
-
 use crate::board::Board;
-
+use rand::random_range;
+use std::io;
 pub trait Player {
     fn get_move(&self, board: Board) -> Option<u64>;
     fn get_symbol(&self) -> char;
@@ -9,7 +8,7 @@ pub trait Player {
 
 pub enum PlayerKind {
     Human(Human),
-    // Random(RandomAI),
+    Random(RandomAI),
     // Minimax(Minimax),
 }
 
@@ -17,14 +16,14 @@ impl Player for PlayerKind {
     fn get_symbol(&self) -> char {
         match self {
             PlayerKind::Human(p) => p.get_symbol(),
-            // PlayerKind::Random(p) => p.get_symbol(),
+            PlayerKind::Random(p) => p.get_symbol(),
         }
     }
 
     fn get_move(&self, board: Board) -> Option<u64> {
         match self {
             PlayerKind::Human(p) => p.get_move(board),
-            // PlayerKind::Random(p) => p.get_move(board),
+            PlayerKind::Random(p) => p.get_move(board),
         }
     }
 }
@@ -72,5 +71,31 @@ impl Player for Human {
             }
             println!("Illegal move.");
         }
+    }
+}
+
+pub struct RandomAI {
+    symbol: char,
+}
+
+impl RandomAI {
+    pub const fn new(symbol: char) -> Self {
+        Self { symbol }
+    }
+}
+
+impl Player for RandomAI {
+    fn get_symbol(&self) -> char {
+        self.symbol
+    }
+
+    fn get_move(&self, board: Board) -> Option<u64> {
+        let num_moves = board.num_moves(self.get_symbol() == 'x');
+        if num_moves == 0 {
+            return None;
+        }
+        let num = random_range(0..num_moves) as usize;
+        let mv = board.moves_iter(self.get_symbol() == 'x').nth(num).unwrap();
+        Some(mv)
     }
 }

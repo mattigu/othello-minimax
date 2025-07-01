@@ -1,14 +1,14 @@
 use core::panic;
 use othello::{
     game::Game,
-    player::{Human, PlayerKind},
+    player::{Human, PlayerKind, RandomAI},
 };
 use std::io;
 fn main() {
     println!("Choose mode:");
     println!("1 - player vs player");
-    println!("2 - player vs algorithm");
-    println!("3 - algorithm vs algorithm");
+    println!("2 - player vs random");
+    println!("3 - random vs random");
 
     let mut input = String::new();
     let _ = io::stdin().read_line(&mut input);
@@ -17,6 +17,14 @@ fn main() {
         "1" => (
             PlayerKind::Human(Human::new('x')),
             PlayerKind::Human(Human::new('o')),
+        ),
+        "2" => (
+            PlayerKind::Human(Human::new('x')),
+            PlayerKind::Random(RandomAI::new('o')),
+        ),
+        "3" => (
+            PlayerKind::Random(RandomAI::new('x')),
+            PlayerKind::Random(RandomAI::new('o')),
         ),
         _ => panic!("Invalid option"),
     };
