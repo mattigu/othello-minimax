@@ -148,6 +148,10 @@ impl Board {
         self.legal_moves(x_turn).count_ones()
     }
 
+    pub fn is_over(&self) -> bool {
+        self.num_moves(true) == 0 && self.num_moves(false) == 0
+    }
+
     pub fn moves_iter(&self, x_turn: bool) -> MovesIter {
         MovesIter {
             moves: self.legal_moves(x_turn),
