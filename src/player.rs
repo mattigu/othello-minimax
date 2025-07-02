@@ -2,6 +2,7 @@ use crate::board::Board;
 use crate::eval::Evaluator;
 use rand::random_range;
 use std::io;
+
 pub trait Player {
     fn get_move(&self, board: Board) -> Option<u64>;
     fn get_symbol(&self) -> char;
@@ -105,12 +106,17 @@ impl Player for RandomAI {
 
 pub struct Minimax<E: Evaluator> {
     symbol: char,
+    depth: u8,
     eval: E,
 }
 
 impl<E: Evaluator> Minimax<E> {
-    pub const fn new(symbol: char, eval: E) -> Self {
-        Self { symbol, eval }
+    pub const fn new(symbol: char, depth: u8, eval: E) -> Self {
+        Self {
+            symbol,
+            depth,
+            eval,
+        }
     }
 
     fn search(&self, board: Board, depth: u8, x_turn: bool) -> (i32, u64) {
@@ -159,7 +165,7 @@ impl<E: Evaluator> Player for Minimax<E> {
         if board.num_moves(self.get_symbol() == 'x') == 0 {
             return None;
         }
-        let (_, mv) = self.search(board, 10, self.get_symbol() == 'x');
+        let (_, mv) = self.search(board, self.depth, self.get_symbol() == 'x');
         Some(mv)
     }
 }

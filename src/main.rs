@@ -42,7 +42,7 @@ fn main() {
         ),
         "4" => run_game(
             PKSim::Human(Human::new('x')),
-            PKSim::Minimax(Minimax::new('o', SimpleEval {})),
+            PKSim::Minimax(Minimax::new('o', 6, SimpleEval {})),
         ),
 
         _ => panic!("Invalid option"),
