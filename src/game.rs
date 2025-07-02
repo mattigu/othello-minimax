@@ -1,5 +1,7 @@
 use crate::board::Board;
 use crate::player::Player;
+
+#[derive(Clone)]
 pub struct Game<P1: Player, P2: Player> {
     board: Board,
     p1: P1,
@@ -24,29 +26,43 @@ impl<P1: Player, P2: Player> Game<P1, P2> {
                 self.board.print(self.x_turn);
             }
 
+            if self.x_turn && print {
+                println!("X to move");
+            } else if print {
+                println!("O to move");
+            }
+
             let mv = if self.x_turn {
-                println!("X to move:");
                 self.p1.get_move(self.board.clone())
             } else {
-                println!("O to move");
                 self.p2.get_move(self.board.clone())
             };
 
             match mv {
                 Some(mv) => self.board.apply_move(mv, self.x_turn),
-                None => println!("No moves available - skipping turn"),
+                None => {
+                    if print {
+                        println!("No moves available - skipping turn")
+                    }
+                }
             }
 
             self.x_turn = !self.x_turn;
 
             if self.board.is_over() {
-                self.board.print(self.x_turn);
+                if print {
+                    self.board.print(self.x_turn);
+                }
+
                 return Score::new(
                     self.board.get_x().count_ones(),
                     self.board.get_o().count_ones(),
                 );
             }
         }
+    }
+    pub fn reset(&mut self) {
+        self.board = Board::new();
     }
 }
 
