@@ -1,14 +1,14 @@
 use crate::board::Board;
-use crate::player::{Player, PlayerKind};
-pub struct Game {
+use crate::player::Player;
+pub struct Game<P1: Player, P2: Player> {
     board: Board,
-    p1: PlayerKind,
-    p2: PlayerKind,
+    p1: P1,
+    p2: P2,
     x_turn: bool,
 }
 
-impl Game {
-    pub fn new(p1: PlayerKind, p2: PlayerKind) -> Self {
+impl<P1: Player, P2: Player> Game<P1, P2> {
+    pub fn new(p1: P1, p2: P2) -> Self {
         Self {
             board: Board::default(),
             p1, // x
@@ -17,10 +17,13 @@ impl Game {
         }
     }
 
-    pub fn run(&mut self) -> Score {
+    pub fn run(&mut self, print: bool) -> Score {
         loop {
-            println!();
-            self.board.print(self.x_turn);
+            if print {
+                println!();
+                self.board.print(self.x_turn);
+            }
+
             let mv = if self.x_turn {
                 println!("X to move:");
                 self.p1.get_move(self.board.clone())
@@ -36,7 +39,7 @@ impl Game {
 
             self.x_turn = !self.x_turn;
 
-            if self.is_over() {
+            if self.board.is_over() {
                 self.board.print(self.x_turn);
                 return Score::new(
                     self.board.get_x().count_ones(),
@@ -44,10 +47,6 @@ impl Game {
                 );
             }
         }
-    }
-
-    fn is_over(&self) -> bool {
-        self.board.num_moves(true) == 0 && self.board.num_moves(false) == 0
     }
 }
 
