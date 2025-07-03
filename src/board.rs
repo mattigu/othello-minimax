@@ -149,7 +149,7 @@ impl Board {
     }
 
     pub fn is_over(&self) -> bool {
-        self.num_moves(true) == 0 && self.num_moves(false) == 0
+        self.legal_moves(true) == 0 && self.legal_moves(false) == 0
     }
 
     pub fn moves_iter(&self, x_turn: bool) -> MovesIter {
