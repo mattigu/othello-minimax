@@ -1,6 +1,6 @@
 # Othello
-This is my first project in rust. The goal was to rewrite and improve my first programming project which was in Python.
-This implementation efficiently stores the board using 2 - 64 bit unsigned integers.
+This is my first project in rust. The goal was to rewrite and improve my first programming project written in Python.
+This implementation efficiently stores the board using 2 - 64 bit unsigned integers and is ~1000 times faster.
 
 # Build
 There are two build targets for this project - othello and test.
