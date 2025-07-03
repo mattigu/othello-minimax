@@ -1,8 +1,8 @@
 use core::panic;
 use othello::{
-    eval::SimpleEval,
+    eval::{GoodEval, SimpleEval},
     game::{Game, Outcome},
-    player::{AlphaBeta, Human, Negamax, Player, PlayerKind, RandomAI},
+    player::{Human, Negamax, Player, PlayerKind, RandomAI},
 };
 use std::io;
 
@@ -28,6 +28,7 @@ fn main() {
     let _ = io::stdin().read_line(&mut input);
 
     type PKSim = PlayerKind<SimpleEval>;
+    type PKBest = PlayerKind<GoodEval>;
 
     match input.trim() {
         "1" => run_game(PKSim::Human(Human::new('x')), PKSim::Human(Human::new('o'))),
@@ -42,7 +43,7 @@ fn main() {
         ),
         "4" => run_game(
             PKSim::Human(Human::new('x')),
-            PKSim::Negamax(Negamax::new('o', 13, SimpleEval {})),
+            PKBest::Negamax(Negamax::new('o', 10, GoodEval {})),
         ),
 
         _ => panic!("Invalid option"),

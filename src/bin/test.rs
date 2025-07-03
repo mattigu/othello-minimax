@@ -2,6 +2,7 @@ use std::fmt;
 use std::time::Duration;
 use std::time::Instant;
 
+use othello::eval::GoodEval;
 use othello::eval::SimpleEval;
 use othello::game::Game;
 use othello::game::Outcome;
@@ -42,7 +43,7 @@ impl Stat {
 
     fn print_header() {
         println!(
-            "{:<18} | {:^28} | {:^6} | {:^7} | {:^5}",
+            "{:<18} | {:^28} | {:^6} | {:^8} | {:^5}",
             "Description", "results", "runs", "total", "avg"
         );
     }
@@ -65,7 +66,7 @@ impl fmt::Display for Stat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:<18} | {} {:>6}  {} {:>6}  D {:>6} | {:>6} | {:>7} | {:>5}",
+            "{:<18} | {} {:>6}  {} {:>6}  D {:>6} | {:>6} | {:>8} | {:>5}",
             self.description,
             color("X", ansi_for('x')),
             self.x_wins,
@@ -113,7 +114,7 @@ pub fn run_bench<P1: Player, P2: Player>(
 }
 
 fn main() {
-    const SEED: u64 = 0x_A142_3141_A160_1111;
+    const SEED: u64 = 0x_A142_3141_A150_4411;
     Stat::print_header();
 
     let random_o = RandomAI::with_seed('o', SEED);
@@ -128,11 +129,16 @@ fn main() {
 
     let alpha_x_s_6 = AlphaBeta::new('x', 6, SimpleEval {});
     let random_o = RandomAI::with_seed('o', SEED);
-    let stat = run_bench(alpha_x_s_6, random_o, 1000, "Alpha 6s vs random");
+    let stat = run_bench(alpha_x_s_6, random_o, 100, "Alpha 6s vs random");
     println!("{stat}");
 
     let nega_x_s_6 = Negamax::new('x', 6, SimpleEval {});
     let random_o = RandomAI::with_seed('o', SEED);
-    let stat = run_bench(nega_x_s_6, random_o, 1000, "Nega 6s vs random");
+    let stat = run_bench(nega_x_s_6, random_o, 100, "Nega 6s vs random");
+    println!("{stat}");
+
+    let nega_x_b_6 = Negamax::new('x', 6, GoodEval {});
+    let random_o = RandomAI::with_seed('o', SEED);
+    let stat = run_bench(nega_x_b_6, random_o, 100, "Nega 6B vs random");
     println!("{stat}");
 }
