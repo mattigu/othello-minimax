@@ -1,4 +1,5 @@
 use crate::board::Board;
+use crate::board::MovesIter;
 use crate::eval::Evaluator;
 use crate::player::Player;
 use std::cmp::max;
@@ -31,7 +32,8 @@ impl<E: Evaluator> AlphaBeta<E> {
             return (self.eval.eval(board), 0);
         }
 
-        if board.num_moves(x_turn) == 0 {
+        let moves = board.legal_moves(x_turn);
+        if moves == 0 {
             return self.search(board, depth - 1, !x_turn, alpha, beta);
         };
 
@@ -39,7 +41,7 @@ impl<E: Evaluator> AlphaBeta<E> {
         let mut best_move: u64 = 0;
 
         if x_turn {
-            for mv in board.moves_iter(x_turn) {
+            for mv in MovesIter::new(moves) {
                 let mut temp_board = board.clone();
                 temp_board.apply_move(mv, x_turn);
                 let (eval, _) = self.search(temp_board, depth - 1, !x_turn, alpha, beta);
@@ -53,7 +55,7 @@ impl<E: Evaluator> AlphaBeta<E> {
                 }
             }
         } else {
-            for mv in board.moves_iter(x_turn) {
+            for mv in MovesIter::new(moves) {
                 let mut temp_board = board.clone();
                 temp_board.apply_move(mv, x_turn);
                 let (eval, _) = self.search(temp_board, depth - 1, !x_turn, alpha, beta);

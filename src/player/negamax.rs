@@ -1,8 +1,10 @@
-use crate::board::Board;
+use crate::board::{Board, MovesIter};
 use crate::eval::Evaluator;
 use crate::player::Player;
 use std::cmp::max;
 
+// This is the best algorithm here so I will do methods that are implemented in board by hand to reuse the same values.
+// This doesn't give that much performance so I will leave other files as they for readability.
 pub struct Negamax<E: Evaluator> {
     symbol: char,
     depth: u8,
@@ -31,7 +33,8 @@ impl<E: Evaluator> Negamax<E> {
             return (color as i32 * self.eval.eval(board), 0);
         }
 
-        if board.num_moves(x_turn) == 0 {
+        let moves = board.legal_moves(x_turn);
+        if moves == 0 {
             let (eval, mv) = self.search(board, depth - 1, !x_turn, -color, -beta, -alpha);
             return (-eval, mv);
         };
@@ -39,7 +42,7 @@ impl<E: Evaluator> Negamax<E> {
         let mut value = i32::MIN + 1;
         let mut best_move = 0;
 
-        for mv in board.moves_iter(x_turn) {
+        for mv in MovesIter::new(moves) {
             let mut temp_board = board.clone();
             temp_board.apply_move(mv, x_turn);
             let (eval, _) = self.search(temp_board, depth - 1, !x_turn, -color, -beta, -alpha);
