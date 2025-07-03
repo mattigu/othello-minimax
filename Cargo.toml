@@ -7,3 +7,8 @@ default-run = "test"
 
 [dependencies]
 rand = "0.9.1"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
