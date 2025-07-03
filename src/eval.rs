@@ -63,7 +63,7 @@ impl Evaluator for GoodEval {
 
         let position = position_x - position_o;
 
-        let eval = score_diff + mobility * 3 + position;
+        let eval = score_diff + 2 * mobility + position;
         return eval;
     }
 }

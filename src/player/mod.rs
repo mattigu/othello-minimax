@@ -1,6 +1,7 @@
 pub mod alphabeta;
 pub mod human;
 pub mod minimax;
+pub mod mixed;
 pub mod negamax;
 pub mod random;
 
@@ -10,6 +11,7 @@ use crate::eval::Evaluator;
 pub use alphabeta::AlphaBeta;
 pub use human::Human;
 pub use minimax::Minimax;
+pub use mixed::Mixed;
 pub use negamax::Negamax;
 pub use random::RandomAI;
 

@@ -8,6 +8,7 @@ use othello::game::Game;
 use othello::game::Outcome;
 use othello::player::AlphaBeta;
 use othello::player::Minimax;
+use othello::player::Mixed;
 use othello::player::Negamax;
 use othello::player::Player;
 use othello::player::RandomAI;
@@ -43,7 +44,7 @@ impl Stat {
 
     fn print_header() {
         println!(
-            "{:<18} | {:^28} | {:^6} | {:^8} | {:^5}",
+            "{:<22} | {:^28} | {:^6} | {:^8} | {:^5}",
             "Description", "results", "runs", "total", "avg"
         );
     }
@@ -66,7 +67,7 @@ impl fmt::Display for Stat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:<18} | {} {:>6}  {} {:>6}  D {:>6} | {:>6} | {:>8} | {:>5}",
+            "{:<22} | {} {:>6}  {} {:>6}  D {:>6} | {:>6} | {:>8} | {:>5}",
             self.description,
             color("X", ansi_for('x')),
             self.x_wins,
@@ -114,6 +115,7 @@ pub fn run_bench<P1: Player, P2: Player>(
 }
 
 fn main() {
+    // naming scheme - algorithm_symbol_depth_evaluator
     const SEED: u64 = 0x_A142_3141_A150_4411;
     Stat::print_header();
 
@@ -137,8 +139,13 @@ fn main() {
     let stat = run_bench(nega_x_s_6, random_o, 100, "Nega 6s vs random");
     println!("{stat}");
 
-    let nega_x_b_6 = Negamax::new('x', 6, GoodEval {});
+    let nega_x_b_5 = Negamax::new('x', 5, GoodEval {});
     let random_o = RandomAI::with_seed('o', SEED);
-    let stat = run_bench(nega_x_b_6, random_o, 100, "Nega 6B vs random");
+    let stat = run_bench(nega_x_b_5, random_o, 100, "Nega 5B vs random");
+    println!("{stat}");
+
+    let nega_x_b_5 = Negamax::new('x', 3, GoodEval {});
+    let mixed_50_nega_s_5 = Mixed::new(Negamax::new('o', 8, SimpleEval {}), 'o', SEED, 0.2);
+    let stat = run_bench(nega_x_b_5, mixed_50_nega_s_5, 50, "Nega 5B vs 20% nega_9S");
     println!("{stat}");
 }
