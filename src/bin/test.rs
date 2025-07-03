@@ -7,6 +7,7 @@ use othello::game::Game;
 use othello::game::Outcome;
 use othello::player::AlphaBeta;
 use othello::player::Minimax;
+use othello::player::Negamax;
 use othello::player::Player;
 use othello::player::RandomAI;
 use othello::utils::ansi_for;
@@ -112,7 +113,7 @@ pub fn run_bench<P1: Player, P2: Player>(
 }
 
 fn main() {
-    const SEED: u64 = 0x_A857_FF13_A120_881C;
+    const SEED: u64 = 0x_A142_3141_A160_1111;
     Stat::print_header();
 
     let random_o = RandomAI::with_seed('o', SEED);
@@ -122,11 +123,16 @@ fn main() {
 
     let mini_x_s_4 = Minimax::new('x', 4, SimpleEval {});
     let random_o = RandomAI::with_seed('o', SEED);
-    let stat = run_bench(mini_x_s_4, random_o, 100, "Mini 4s vs random");
+    let stat = run_bench(mini_x_s_4, random_o, 200, "Mini 4s vs random");
     println!("{stat}");
 
     let alpha_x_s_6 = AlphaBeta::new('x', 6, SimpleEval {});
     let random_o = RandomAI::with_seed('o', SEED);
-    let stat = run_bench(alpha_x_s_6, random_o, 100, "Alpha 6s vs random");
+    let stat = run_bench(alpha_x_s_6, random_o, 1000, "Alpha 6s vs random");
+    println!("{stat}");
+
+    let nega_x_s_6 = Negamax::new('x', 6, SimpleEval {});
+    let random_o = RandomAI::with_seed('o', SEED);
+    let stat = run_bench(nega_x_s_6, random_o, 1000, "Nega 6s vs random");
     println!("{stat}");
 }
