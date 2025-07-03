@@ -2,7 +2,7 @@ use core::panic;
 use othello::{
     eval::SimpleEval,
     game::{Game, Outcome},
-    player::{Human, Minimax, Player, PlayerKind, RandomAI},
+    player::{AlphaBeta, Human, Minimax, Player, PlayerKind, RandomAI},
 };
 use std::io;
 
@@ -22,7 +22,7 @@ fn main() {
     println!("1 - player vs player");
     println!("2 - player vs random");
     println!("3 - random vs random");
-    println!("4 - player vs minimax");
+    println!("4 - player vs best");
 
     let mut input = String::new();
     let _ = io::stdin().read_line(&mut input);
@@ -42,7 +42,7 @@ fn main() {
         ),
         "4" => run_game(
             PKSim::Human(Human::new('x')),
-            PKSim::Minimax(Minimax::new('o', 6, SimpleEval {})),
+            PKSim::AlphaBeta(AlphaBeta::new('o', 13, SimpleEval {})),
         ),
 
         _ => panic!("Invalid option"),

@@ -5,6 +5,7 @@ use std::time::Instant;
 use othello::eval::SimpleEval;
 use othello::game::Game;
 use othello::game::Outcome;
+use othello::player::AlphaBeta;
 use othello::player::Minimax;
 use othello::player::Player;
 use othello::player::RandomAI;
@@ -112,18 +113,19 @@ pub fn run_bench<P1: Player, P2: Player>(
 
 fn main() {
     Stat::print_header();
-    //
+
     let random_o = RandomAI::new('o');
     let random_x = RandomAI::new('x');
-
     let stat = run_bench(random_x, random_o, 1000, "Random vs random");
     println!("{stat}");
-    //
 
-    let mini_x_5 = Minimax::new('x', 5, SimpleEval {});
+    let mini_x_s_4 = Minimax::new('x', 4, SimpleEval {});
     let random_o = RandomAI::new('o');
-    let stat = run_bench(mini_x_5, random_o, 100, "Mini 5s vs random");
+    let stat = run_bench(mini_x_s_4, random_o, 100, "Mini 4s vs random");
     println!("{stat}");
 
-    //
+    let alpha_x_s_6 = AlphaBeta::new('x', 6, SimpleEval {});
+    let random_o = RandomAI::new('o');
+    let stat = run_bench(alpha_x_s_6, random_o, 100, "Alpha 6s vs random");
+    println!("{stat}");
 }
