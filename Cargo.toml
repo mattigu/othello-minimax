@@ -3,7 +3,7 @@ name = "othello"
 version = "0.1.0"
 edition = "2024"
 
-default-run = "test"
+default-run = "othello"
 
 [dependencies]
 rand = "0.9.1"
