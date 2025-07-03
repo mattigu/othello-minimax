@@ -24,6 +24,7 @@ fn main() {
     println!("3 - random vs random");
     println!("4 - player vs best algorithm");
     println!("5 - random vs best algorithm");
+    println!("6 - player vs easy algorithm");
 
     let mut input = String::new();
     let _ = io::stdin().read_line(&mut input);
@@ -51,6 +52,11 @@ fn main() {
         "5" => run_game(
             PKSim::Random(RandomAI::new('x')),
             PKBest::Negamax(Negamax::new('o', 10, GoodEval {})),
+        ),
+
+        "6" => run_game(
+            PKSim::Random(RandomAI::new('x')),
+            PKSim::Negamax(Negamax::new('o', 5, SimpleEval {})),
         ),
 
         _ => panic!("Invalid option"),
