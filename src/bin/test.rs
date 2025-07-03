@@ -41,7 +41,7 @@ impl Stat {
 
     fn print_header() {
         println!(
-            "{:<18} | {:^22} | {:^4} | {:^7} | {:^5}",
+            "{:<18} | {:^28} | {:^6} | {:^7} | {:^5}",
             "Description", "results", "runs", "total", "avg"
         );
     }
@@ -51,11 +51,11 @@ impl Stat {
         if time < 1000 {
             format!("{time} ns")
         } else if time < 1_000_000 {
-            format!("{:.2} μs", duration.as_micros())
+            format!("{:.1} μs", time as f64 / 1_000.0)
         } else if time < 1_000_000_000 {
-            format!("{:.2} ms", duration.as_millis())
+            format!("{:.1} ms", time as f64 / 1_000_000.0)
         } else {
-            format!("{:.2} s", duration.as_secs_f64())
+            format!("{:.1} s", duration.as_secs_f64())
         }
     }
 }
@@ -64,7 +64,7 @@ impl fmt::Display for Stat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:<18} | {} {:>4}  {} {:>4}  D {:>4} | {:>4} | {:>7} | {:>5}",
+            "{:<18} | {} {:>6}  {} {:>6}  D {:>6} | {:>6} | {:>7} | {:>5}",
             self.description,
             color("X", ansi_for('x')),
             self.x_wins,
@@ -112,20 +112,21 @@ pub fn run_bench<P1: Player, P2: Player>(
 }
 
 fn main() {
+    const SEED: u64 = 0x_A857_FF13_A120_881C;
     Stat::print_header();
 
-    let random_o = RandomAI::new('o');
-    let random_x = RandomAI::new('x');
-    let stat = run_bench(random_x, random_o, 1000, "Random vs random");
+    let random_o = RandomAI::with_seed('o', SEED);
+    let random_x = RandomAI::with_seed('x', SEED);
+    let stat = run_bench(random_x, random_o, 100000, "Random vs random");
     println!("{stat}");
 
     let mini_x_s_4 = Minimax::new('x', 4, SimpleEval {});
-    let random_o = RandomAI::new('o');
+    let random_o = RandomAI::with_seed('o', SEED);
     let stat = run_bench(mini_x_s_4, random_o, 100, "Mini 4s vs random");
     println!("{stat}");
 
     let alpha_x_s_6 = AlphaBeta::new('x', 6, SimpleEval {});
-    let random_o = RandomAI::new('o');
+    let random_o = RandomAI::with_seed('o', SEED);
     let stat = run_bench(alpha_x_s_6, random_o, 100, "Alpha 6s vs random");
     println!("{stat}");
 }

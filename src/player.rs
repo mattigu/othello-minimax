@@ -1,12 +1,14 @@
 use crate::board::Board;
 use crate::eval::Evaluator;
-use rand::random_range;
+use rand::Rng;
+use rand::SeedableRng;
+use rand::rngs::SmallRng;
 use std::cmp::max;
 use std::cmp::min;
 use std::io;
 
 pub trait Player {
-    fn get_move(&self, board: Board) -> Option<u64>;
+    fn get_move(&mut self, board: Board) -> Option<u64>;
     fn get_symbol(&self) -> char;
 }
 
@@ -27,7 +29,7 @@ impl<E: Evaluator> Player for PlayerKind<E> {
         }
     }
 
-    fn get_move(&self, board: Board) -> Option<u64> {
+    fn get_move(&mut self, board: Board) -> Option<u64> {
         match self {
             PlayerKind::Human(p) => p.get_move(board),
             PlayerKind::Random(p) => p.get_move(board),
@@ -63,7 +65,7 @@ impl Player for Human {
         self.symbol
     }
 
-    fn get_move(&self, board: Board) -> Option<u64> {
+    fn get_move(&mut self, board: Board) -> Option<u64> {
         if board.num_moves(self.get_symbol() == 'x') == 0 {
             return None;
         }
@@ -85,11 +87,22 @@ impl Player for Human {
 
 pub struct RandomAI {
     symbol: char,
+    rng: SmallRng,
 }
 
 impl RandomAI {
-    pub const fn new(symbol: char) -> Self {
-        Self { symbol }
+    pub fn new(symbol: char) -> Self {
+        Self {
+            symbol,
+            rng: SmallRng::from_os_rng(),
+        }
+    }
+
+    pub fn with_seed(symbol: char, seed: u64) -> Self {
+        Self {
+            symbol,
+            rng: SmallRng::seed_from_u64(seed),
+        }
     }
 }
 
@@ -98,12 +111,12 @@ impl Player for RandomAI {
         self.symbol
     }
 
-    fn get_move(&self, board: Board) -> Option<u64> {
+    fn get_move(&mut self, board: Board) -> Option<u64> {
         let num_moves = board.num_moves(self.get_symbol() == 'x');
         if num_moves == 0 {
             return None;
         }
-        let num = random_range(0..num_moves) as usize;
+        let num = self.rng.random_range(0..num_moves) as usize;
         let mv = board.moves_iter(self.get_symbol() == 'x').nth(num).unwrap();
         Some(mv)
     }
@@ -166,7 +179,7 @@ impl<E: Evaluator> Player for Minimax<E> {
         self.symbol
     }
 
-    fn get_move(&self, board: Board) -> Option<u64> {
+    fn get_move(&mut self, board: Board) -> Option<u64> {
         if board.num_moves(self.get_symbol() == 'x') == 0 {
             return None;
         }
@@ -247,7 +260,7 @@ impl<E: Evaluator> Player for AlphaBeta<E> {
         self.symbol
     }
 
-    fn get_move(&self, board: Board) -> Option<u64> {
+    fn get_move(&mut self, board: Board) -> Option<u64> {
         if board.num_moves(self.get_symbol() == 'x') == 0 {
             return None;
         }
